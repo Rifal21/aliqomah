@@ -67,8 +67,8 @@ class DatabaseSeeder extends Seeder
         ]);
         Page::create([
             'name' => 'alumni',
-            'section' => 'jumbotron',
-            'slug' => 'alumni-jumbotron',
+            'section' => 'sambutan',
+            'slug' => 'alumni-sambutan',
             'content' => null,
             'is_active' => true,
         ]);
