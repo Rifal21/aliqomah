@@ -36,19 +36,26 @@
                                 onclick="document.getElementById('icon-{{ $index }}').click()">
                                 <p class="text-gray-500">Klik untuk upload</p>
                             </div>
-                            <input type="file" id="icon-{{ $index }}" name="content[{{ $index }}][icon]" class="hidden" accept="image/*" onchange="previewImage(event, 'icon-{{ $index }}')">
+                            <input type="file" id="icon-{{ $index }}" name="content[{{ $index }}][icon]"
+                                class="hidden" accept="image/*" onchange="previewImage(event, 'icon-{{ $index }}')">
 
-                            <div id="preview-icon-{{ $index }}" class="mt-4 @if (empty($program['icon'])) hidden @endif">
+                            <div id="preview-icon-{{ $index }}"
+                                class="mt-4 @if (empty($program['icon'])) hidden @endif">
                                 <h3 class="font-semibold text-gray-700 mb-2">Preview Icon</h3>
-                                <img id="preview-icon-{{ $index }}-image" src="{{ isset($program['icon']) ? asset('storage/' . $program['icon']) : '#' }}" class="w-32 h-32 object-cover rounded-md">
+                                <img id="preview-icon-{{ $index }}-image"
+                                    src="{{ isset($program['icon']) ? asset('storage/' . $program['icon']) : '#' }}"
+                                    class="w-32 h-32 object-cover rounded-md">
                             </div>
                         </div>
 
                         {{-- Quill Editor --}}
                         <div class="mt-4">
                             <label class="block text-sm font-medium text-gray-700">Penjelasan Lengkap</label>
-                            <input type="hidden" name="content[{{ $index }}][long_description]" id="hidden-editor-{{ $index }}">
-                            <div id="editor-{{ $index }}" class="quill-editor bg-white border border-gray-300 rounded-md p-2" style="min-height: 150px;">
+                            <input type="hidden" name="content[{{ $index }}][long_description]"
+                                id="hidden-editor-{{ $index }}">
+                            <div id="editor-{{ $index }}"
+                                class="quill-editor bg-white border border-gray-300 rounded-md p-2"
+                                style="min-height: 150px;">
                                 {!! old('content.' . $index . '.long_description', $program['long_description'] ?? '') !!}
                             </div>
                         </div>
@@ -57,8 +64,13 @@
             </div>
 
             <div>
-                <button type="submit"
-                    class="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button type="button" onclick="addProgram()"
+                    class="py-3 px-6 bg-green-600 text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500">
+                    + Tambah Program
+                </button>
+            </div>
+            <div>
+                <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     Simpan Semua Perubahan
                 </button>
             </div>
@@ -73,14 +85,14 @@
         let editors = {};
         let indexCounter = {{ count(old('content', $pages->content ?? [])) }};
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.quill-editor').forEach((el, idx) => {
                 const editor = new Quill(el, {
                     theme: 'snow'
                 });
 
                 const hiddenInput = document.querySelector(`#hidden-editor-${idx}`);
-                editor.on('text-change', function () {
+                editor.on('text-change', function() {
                     hiddenInput.value = editor.root.innerHTML;
                 });
 
@@ -93,7 +105,7 @@
         function previewImage(event, id) {
             const file = event.target.files[0];
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 const img = document.getElementById(`preview-${id}-image`);
                 const wrapper = document.getElementById(`preview-${id}`);
                 img.src = e.target.result;
@@ -104,6 +116,67 @@
 
         function removeProgram(btn) {
             btn.closest('.p-6').remove();
+        }
+
+        function addProgram() {
+            const wrapper = document.getElementById('programs-wrapper');
+
+            const index = indexCounter++;
+            const uuid = self.crypto.randomUUID(); // ID unik untuk item baru
+
+            const template = `
+        <div class="p-6 border rounded-md bg-gray-50 relative">
+            <button type="button" onclick="removeProgram(this)"
+                class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl font-bold">&times;</button>
+
+            <input type="hidden" name="content[${index}][id]" value="${uuid}">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Judul Program</label>
+                <input type="text" name="content[${index}][title]"
+                    class="mt-2 w-full p-3 border border-gray-300 rounded-md" required>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">Deskripsi Singkat</label>
+                <textarea name="content[${index}][description]" rows="4"
+                    class="mt-2 w-full p-3 border border-gray-300 rounded-md" required></textarea>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Icon Program</label>
+                <div class="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-md p-6 cursor-pointer"
+                    onclick="document.getElementById('icon-${index}').click()">
+                    <p class="text-gray-500">Klik untuk upload</p>
+                </div>
+                <input type="file" id="icon-${index}" name="content[${index}][icon]" class="hidden" accept="image/*" onchange="previewImage(event, 'icon-${index}')">
+
+                <div id="preview-icon-${index}" class="mt-4 hidden">
+                    <h3 class="font-semibold text-gray-700 mb-2">Preview Icon</h3>
+                    <img id="preview-icon-${index}-image" src="#" class="w-32 h-32 object-cover rounded-md">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">Penjelasan Lengkap</label>
+                <input type="hidden" name="content[${index}][long_description]" id="hidden-editor-${index}">
+                <div id="editor-${index}" class="quill-editor bg-white border border-gray-300 rounded-md p-2" style="min-height: 150px;"></div>
+            </div>
+        </div>
+    `;
+
+            wrapper.insertAdjacentHTML('beforeend', template);
+
+            // Inisialisasi Quill untuk editor baru
+            const newEditor = new Quill(`#editor-${index}`, {
+                theme: 'snow'
+            });
+            const hiddenInput = document.querySelector(`#hidden-editor-${index}`);
+            newEditor.on('text-change', function() {
+                hiddenInput.value = newEditor.root.innerHTML;
+            });
+            hiddenInput.value = newEditor.root.innerHTML;
+            editors[`editor-${index}`] = newEditor;
         }
     </script>
 @endsection
